@@ -1,0 +1,1 @@
+export { vitepressPreviewPlugin } from './markdown';

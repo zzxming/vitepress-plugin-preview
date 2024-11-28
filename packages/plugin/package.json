@@ -1,0 +1,35 @@
+{
+  "name": "vitepress-plugin-preview",
+  "version": "0.0.0",
+  "author": "zzxming",
+  "exports": {
+    ".": "./dist/component.mjs",
+    "./plugin": "./dist/plugin.mjs",
+    "./index.css": "./dist/style.css"
+  },
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "peerDependencies": {
+    "vitepress": "*",
+    "vue": "^3.0.0"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.0",
+    "markdown-it-container": "^4.0.0"
+  },
+  "devDependencies": {
+    "@iconify/vue": "^4.1.2",
+    "@types/markdown-it": "^14.1.2",
+    "@types/markdown-it-container": "^2.0.10",
+    "@types/node": "^22.10.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "sass": "^1.81.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^4.3.0"
+  }
+}
