@@ -9,7 +9,10 @@
   },
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build"
@@ -20,7 +23,8 @@
   },
   "dependencies": {
     "markdown-it": "^14.1.0",
-    "markdown-it-container": "^4.0.0"
+    "markdown-it-container": "^4.0.0",
+    "shiki": "^1.24.4"
   },
   "devDependencies": {
     "@iconify/vue": "^4.1.2",

@@ -77,9 +77,11 @@ export default defineConfig({
 ```
 
 ```md
+render components/base/demo.vue
 :::demo base/demo.vue
 :::
 
+render components/demo.vue
 :::demo demo.vue
 :::
 ```
