@@ -1,4 +1,4 @@
-import { transformerNotationDiff, transformerNotationFocus, transformerNotationHighlight } from '@shikijs/transformers';
+import { transformerNotationDiff, transformerNotationErrorLevel, transformerNotationFocus, transformerNotationHighlight, transformerNotationWordHighlight } from '@shikijs/transformers';
 import { defineConfig } from 'vitepress';
 import { vitepressPreviewPlugin } from 'vitepress-plugin-preview/plugin';
 
@@ -28,14 +28,18 @@ export default defineConfig({
       md.use(vitepressPreviewPlugin, {
         shiki: {
           themes: ['andromeeda'],
-        },
-        codeToHtmlOptions: {
-          theme: 'andromeeda',
-          transformers: [
-            transformerNotationDiff(),
-            transformerNotationHighlight(),
-            transformerNotationFocus(),
-          ],
+          codeToHtmlOptions: {
+            transformers: [
+              transformerNotationDiff(),
+              transformerNotationHighlight(),
+              transformerNotationFocus({
+                classActiveLine: 'has-focus',
+                classActivePre: 'has-focused-lines',
+              }),
+              transformerNotationErrorLevel(),
+              transformerNotationWordHighlight(),
+            ],
+          },
         },
       });
     },

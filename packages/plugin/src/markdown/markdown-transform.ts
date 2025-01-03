@@ -1,35 +1,42 @@
 import type MarkdownIt from 'markdown-it';
 import type { Renderer, Token } from 'markdown-it';
+import type { LoadShikiOptions } from './highlight';
 import fs from 'node:fs';
 import path from 'node:path';
 import mdContainer from 'markdown-it-container';
-import { bundledLanguages, type createHighlighter } from 'shiki';
 import { defaultMutipleDemoFile } from '../utils';
 import { highlight, loadShiki } from './highlight';
 import { getAllFiles, injectImport, isFile, normalizePath, readFile, toPascalCase } from './utils';
 
 export interface DemoContainerOptions {
-  componentPath?: string;
-  prefix?: string;
-  shiki?: Parameters<typeof createHighlighter>;
-  codeToHtmlOptions?: Parameters<typeof highlight>[2];
+  componentPath: string;
+  prefix: string;
+  shiki: ShikiOptions;
+}
+export interface ShikiOptions extends LoadShikiOptions {
+  codeToHtmlOptions: Parameters<typeof highlight>[2];
 }
 
-function resolveOptions(options?: DemoContainerOptions) {
+function resolveShikiOptions(options?: Partial<ShikiOptions>) {
+  const {
+    themes = [],
+    codeToHtmlOptions = {},
+  } = options || {};
+  return {
+    themes,
+    codeToHtmlOptions,
+  };
+}
+function resolveOptions(options?: Partial<DemoContainerOptions>): DemoContainerOptions {
   const {
     componentPath = 'demos',
     prefix = 'demo',
+    shiki,
   } = options || {};
   return {
     componentPath,
     prefix,
-    shiki: {
-      themes: ['vitesse-dark'],
-      langs: Object.keys(bundledLanguages),
-    },
-    codeToHtmlOptions: {
-      theme: 'vitesse-dark',
-    },
+    shiki: resolveShikiOptions(shiki),
   };
 }
 function tempCodeName(componentsPath: string, filePath: string) {
@@ -70,9 +77,10 @@ async function createDemoContainer(md: MarkdownIt, options?: DemoContainerOption
   const {
     componentPath,
     prefix,
+    shiki,
   } = resolveOptions(options);
   const prefixMatchReg = new RegExp(`^${prefix}\s*(.*)$`);
-  await loadShiki(options?.shiki);
+  await loadShiki(shiki);
   return [
     mdContainer,
     prefix,
@@ -117,7 +125,7 @@ async function createDemoContainer(md: MarkdownIt, options?: DemoContainerOption
 
           return `<VitepressDemoPreview
             raw-source="${Object.values(sourceMap).map(s => encodeURIComponent(s)).join(',')}"
-            source="${Object.entries(sourceMap).map(([s, code]) => encodeURIComponent(highlight(code, path.extname(s).split('.')[1], options?.codeToHtmlOptions))).join(',')}"
+            source="${Object.entries(sourceMap).map(([s, code]) => encodeURIComponent(highlight(code, path.extname(s).split('.')[1], shiki.codeToHtmlOptions))).join(',')}"
             files="${Object.keys(sourceMap).join(',')}"
             src="${src}"
             :isFile="${importIsFile}"
@@ -138,5 +146,6 @@ async function createDemoContainer(md: MarkdownIt, options?: DemoContainerOption
 }
 
 export async function vitepressPreviewPlugin(md: MarkdownIt, options?: DemoContainerOptions) {
-  md.use(...await createDemoContainer(md, options)).use(md => useDemoImport(md, options));
+  const resolvedOptions = resolveOptions(options);
+  md.use(...await createDemoContainer(md, resolvedOptions)).use(md => useDemoImport(md, resolvedOptions));
 }

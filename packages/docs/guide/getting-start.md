@@ -116,5 +116,30 @@ docs
 :::
 ```
 
+## Shiki Support
+
+You can use `Shiki` transformers to highlight the code.
+
+```ts
+import { transformerNotationHighlight, } from '@shikijs/transformers';
+
+export default defineConfig({
+  // other configs...
+  markdown: {
+    config(md) {
+      md.use(vitepressPreviewPlugin, {
+        shiki: {
+          themes: ['night-owl'], // default
+          transformers: [transformerNotationHighlight()], // transformers that shiki used
+          codeToHtmlOptions: { // arguments of `shiki.codeToHtml`
+            theme: 'night-owl',
+          },
+        },
+      });
+    },
+  },
+});
+```
+
 :::demo multiple
 :::
