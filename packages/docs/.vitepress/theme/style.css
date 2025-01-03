@@ -1,0 +1,7 @@
+.vp-doc [class*='language-'] code .highlighted-word {
+  background-color: #23262e;
+  border: 1px solid #d5ced9;
+  padding: 1px 3px;
+  margin: -1px -3px;
+  border-radius: 4px;
+}

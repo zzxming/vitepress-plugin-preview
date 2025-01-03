@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { text } from './text';
+// [!code word:text]
+import { ref } from 'vue'; // [!code highlight]
+import { text } from './text'; // [!code warning]
 
 const importText = ref(text);
 </script>
 
 <template>
   <div>
-    {{ importText }}
+    {{ importText }} <!-- [!code ++] -->
   </div>
 </template>

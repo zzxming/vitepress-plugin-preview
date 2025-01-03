@@ -8,6 +8,7 @@
     "quill": "^2.0.2"
   },
   "devDependencies": {
+    "@shikijs/transformers": "^1.25.0",
     "vitepress": "^1.5.0",
     "vitepress-plugin-preview": "workspace:^",
     "vue": "^3.0.0"

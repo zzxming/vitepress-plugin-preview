@@ -1,24 +1,42 @@
 import type MarkdownIt from 'markdown-it';
 import type { Renderer, Token } from 'markdown-it';
+import type { LoadShikiOptions } from './highlight';
 import fs from 'node:fs';
 import path from 'node:path';
 import mdContainer from 'markdown-it-container';
 import { defaultMutipleDemoFile } from '../utils';
+import { highlight, loadShiki } from './highlight';
 import { getAllFiles, injectImport, isFile, normalizePath, readFile, toPascalCase } from './utils';
 
 export interface DemoContainerOptions {
-  componentPath?: string;
-  prefix?: string;
+  componentPath: string;
+  prefix: string;
+  shiki: ShikiOptions;
+}
+export interface ShikiOptions extends LoadShikiOptions {
+  codeToHtmlOptions: Parameters<typeof highlight>[2];
 }
 
-function resolveOptions(options?: DemoContainerOptions) {
+function resolveShikiOptions(options?: Partial<ShikiOptions>) {
+  const {
+    themes = [],
+    codeToHtmlOptions = {},
+  } = options || {};
+  return {
+    themes,
+    codeToHtmlOptions,
+  };
+}
+function resolveOptions(options?: Partial<DemoContainerOptions>): DemoContainerOptions {
   const {
     componentPath = 'demos',
     prefix = 'demo',
+    shiki,
   } = options || {};
   return {
     componentPath,
     prefix,
+    shiki: resolveShikiOptions(shiki),
   };
 }
 function tempCodeName(componentsPath: string, filePath: string) {
@@ -55,12 +73,14 @@ function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
   };
 }
 
-function createDemoContainer(md: MarkdownIt, options?: DemoContainerOptions) {
+async function createDemoContainer(md: MarkdownIt, options?: DemoContainerOptions) {
   const {
     componentPath,
     prefix,
+    shiki,
   } = resolveOptions(options);
   const prefixMatchReg = new RegExp(`^${prefix}\s*(.*)$`);
+  await loadShiki(shiki);
   return [
     mdContainer,
     prefix,
@@ -69,8 +89,6 @@ function createDemoContainer(md: MarkdownIt, options?: DemoContainerOptions) {
         return !!prefixMatchReg.test(params.trim());
       },
       render(tokens: Token[], idx: number, _: MarkdownIt.Options) {
-        const highlight = md.options.highlight;
-        if (!highlight) return;
         const token = tokens[idx];
 
         if (token.nesting === 1) {
@@ -107,7 +125,7 @@ function createDemoContainer(md: MarkdownIt, options?: DemoContainerOptions) {
 
           return `<VitepressDemoPreview
             raw-source="${Object.values(sourceMap).map(s => encodeURIComponent(s)).join(',')}"
-            source="${Object.entries(sourceMap).map(([s, code]) => encodeURIComponent(highlight(code, path.extname(s).split('.')[1], ''))).join(',')}"
+            source="${Object.entries(sourceMap).map(([s, code]) => encodeURIComponent(highlight(code, path.extname(s).split('.')[1], shiki.codeToHtmlOptions))).join(',')}"
             files="${Object.keys(sourceMap).join(',')}"
             src="${src}"
             :isFile="${importIsFile}"
@@ -127,6 +145,7 @@ function createDemoContainer(md: MarkdownIt, options?: DemoContainerOptions) {
   ] as const;
 }
 
-export function vitepressPreviewPlugin(md: MarkdownIt, options?: DemoContainerOptions) {
-  md.use(...createDemoContainer(md, options)).use(md => useDemoImport(md, options));
+export async function vitepressPreviewPlugin(md: MarkdownIt, options?: DemoContainerOptions) {
+  const resolvedOptions = resolveOptions(options);
+  md.use(...await createDemoContainer(md, resolvedOptions)).use(md => useDemoImport(md, resolvedOptions));
 }
