@@ -28,6 +28,7 @@ export default defineConfig({
       md.use(vitepressPreviewPlugin, {
         shiki: {
           themes: ['andromeeda'],
+          langs: ['ts', 'vue'],
           codeToHtmlOptions: {
             transformers: [
               transformerNotationDiff(),

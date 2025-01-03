@@ -1,16 +1,17 @@
 import type { BundledLanguage, BundledTheme, codeToHtml, HighlighterGeneric } from 'shiki';
-import { bundledLanguages, createHighlighter } from 'shiki';
+import { createHighlighter } from 'shiki';
 
 const defaultTheme = 'night-owl';
 let highlighter: HighlighterGeneric<BundledLanguage, BundledTheme>;
 
 export interface LoadShikiOptions {
   themes: Parameters<typeof createHighlighter>[0]['themes'];
+  langs: Parameters<typeof createHighlighter>[0]['langs'];
 }
 export const loadShiki = (options: LoadShikiOptions) => {
   return createHighlighter({
     themes: [defaultTheme, ...options.themes],
-    langs: Object.keys(bundledLanguages),
+    langs: options.langs,
   })
     .then(h => highlighter = h);
 };

@@ -20,10 +20,12 @@ export interface ShikiOptions extends LoadShikiOptions {
 function resolveShikiOptions(options?: Partial<ShikiOptions>) {
   const {
     themes = [],
+    langs = [],
     codeToHtmlOptions = {},
   } = options || {};
   return {
     themes,
+    langs,
     codeToHtmlOptions,
   };
 }
