@@ -1,6 +1,6 @@
 {
   "name": "vitepress-plugin-preview",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "zzxming",
   "exports": {
     ".": "./dist/plugin.mjs",
