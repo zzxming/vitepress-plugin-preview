@@ -1,6 +1,6 @@
 import { transformerNotationDiff, transformerNotationErrorLevel, transformerNotationFocus, transformerNotationHighlight, transformerNotationWordHighlight } from '@shikijs/transformers';
 import { defineConfig } from 'vitepress';
-import { vitepressPreviewPlugin } from 'vitepress-plugin-preview/plugin';
+import { vitepressPreviewPlugin } from 'vitepress-plugin-preview';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({

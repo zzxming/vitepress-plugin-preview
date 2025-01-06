@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "author": "zzxming",
   "exports": {
-    ".": "./dist/component.mjs",
-    "./plugin": "./dist/plugin.mjs",
+    ".": "./dist/plugin.mjs",
+    "./component": "./dist/component.mjs",
     "./index.css": "./dist/style.css"
   },
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/plugin.mjs",
+  "types": "dist/plugin.d.ts",
   "files": [
     "dist",
     "src"

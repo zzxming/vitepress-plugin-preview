@@ -61,7 +61,9 @@ export function injectImport(mdFile: any, pkg: string, varname?: string) {
   if (scriptSetupIndex !== -1) {
     // already same import
     const scriptContext = mdFile.sfcBlocks.scripts[scriptSetupIndex];
-    mdFile.sfcBlocks.scripts[scriptSetupIndex] = scriptContext.content.includes(pkg) && (!varname || scriptContext.content.includes(varname)) ? scriptContext : insertImportToTop(mdFile.sfcBlocks.scripts[scriptSetupIndex]);
+    mdFile.sfcBlocks.scripts[scriptSetupIndex] = (scriptContext.content.includes(pkg) && (!varname || scriptContext.content.includes(varname)))
+      ? scriptContext
+      : insertImportToTop(mdFile.sfcBlocks.scripts[scriptSetupIndex]);
   }
   else {
     mdFile.sfcBlocks.scripts.push({

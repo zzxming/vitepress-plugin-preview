@@ -14,7 +14,7 @@ pnpm i vitepress-plugin-preview -D
 
 ```ts
 import { defineConfig } from 'vitepress';
-import { vitepressPreviewPlugin } from 'vitepress-plugin-preview/plugin'; // [!code ++]
+import { vitepressPreviewPlugin } from 'vitepress-plugin-preview'; // [!code ++]
 
 export default defineConfig({
   // other configs...
@@ -23,6 +23,9 @@ export default defineConfig({
       md.use(vitepressPreviewPlugin, { // [!code ++]
         componentPath: 'demos', // [!code ++]
         prefix: 'demo', // [!code ++]
+        shiki: { // [!code ++]
+          langs: ['vue'] // [!code ++]
+        } // [!code ++]
       }); // [!code ++]
     }, // [!code ++]
   }, // [!code ++]
@@ -129,6 +132,7 @@ export default defineConfig({
     config(md) {
       md.use(vitepressPreviewPlugin, {
         shiki: {
+          langs: [], // shiki used langs
           themes: ['night-owl'], // default
           transformers: [transformerNotationHighlight()], // transformers that shiki used
           codeToHtmlOptions: { // arguments of `shiki.codeToHtml`

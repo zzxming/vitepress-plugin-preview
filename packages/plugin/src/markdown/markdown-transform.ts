@@ -6,7 +6,7 @@ import path from 'node:path';
 import mdContainer from 'markdown-it-container';
 import { defaultMutipleDemoFile } from '../utils';
 import { highlight, loadShiki } from './highlight';
-import { getAllFiles, injectImport, isFile, normalizePath, readFile, toPascalCase } from './utils';
+import { injectImport, isFile, normalizePath, readFile, toPascalCase } from './utils';
 
 export interface DemoContainerOptions {
   componentPath: string;
@@ -47,13 +47,46 @@ function tempCodeName(componentsPath: string, filePath: string) {
   const pascalName = paths.map(p => toPascalCase(p)).join('') + toPascalCase(ext.replace('.', ''));
   return `TempCode${toPascalCase(pascalName)}`;
 }
+
+function getImportFiles(info: string, getFile: (importPath: string, inputPath: string) => void, options?: DemoContainerOptions) {
+  const {
+    componentPath,
+    prefix,
+  } = resolveOptions(options);
+  const prefixMatchReg = new RegExp(`^${prefix}\s*(.*)$`);
+  const matched = info.trim().match(prefixMatchReg);
+  const params = matched?.[1].trim().split(/\s+/) || [];
+  let importIsFile = true;
+  const filePath = params[0];
+  if (isFile(path.resolve('.', componentPath, filePath))) {
+    const importPath = path.resolve('.', componentPath, filePath);
+    getFile(importPath, filePath);
+  }
+  else {
+    // multiple files
+    importIsFile = false;
+    const dirPath = path.resolve('.', componentPath, filePath);
+    // only same name dir
+    const files = fs.readdirSync(dirPath);
+    for (const item of files) {
+      const importPath = path.join(dirPath, item);
+      if (isFile(importPath)) {
+        getFile(importPath, item);
+      }
+    }
+  }
+  return {
+    importIsFile,
+  };
+}
+
+const previewFilePaths: string[] = [];
 function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
   const {
     componentPath,
     prefix,
   } = resolveOptions(options);
   const containerName = `container_${prefix}_open`;
-
   const defaultContainer = md.renderer.rules[containerName]!;
 
   md.renderer.rules[containerName] = (
@@ -63,15 +96,19 @@ function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
     mdFile: any,
     self: Renderer,
   ) => {
-    const previewFilePaths = getAllFiles(componentPath);
+    const result = defaultContainer(tokens, idx, options, mdFile, self);
+
+    // previewFilePaths closure
     for (const filePath of previewFilePaths) {
       const importName = tempCodeName(componentPath, filePath);
       const importPath = `/${normalizePath(filePath)}`;
       injectImport(mdFile, importPath, importName);
     }
-    injectImport(mdFile, 'vitepress-plugin-preview', '{ VitepressDemoPreview }');
+    injectImport(mdFile, 'vitepress-plugin-preview/component', '{ VitepressDemoPreview }');
     injectImport(mdFile, 'vitepress-plugin-preview/index.css');
-    return defaultContainer(tokens, idx, options, mdFile, self);
+    previewFilePaths.splice(0, previewFilePaths.length);
+
+    return result;
   };
 }
 
@@ -94,33 +131,23 @@ async function createDemoContainer(md: MarkdownIt, options?: DemoContainerOption
         const token = tokens[idx];
 
         if (token.nesting === 1) {
-          const matched = token.info.trim().match(prefixMatchReg);
-          const params = matched?.[1].trim().split(/\s+/) || [];
-          let src = params[0];
-
-          let importIsFile = true;
-          const sourceMap: Record<string, string> = {};
-          const filePath = src;
+          let src = '';
           let componentName = '';
-          if (isFile(path.resolve('.', componentPath, filePath))) {
+          const sourceMap: Record<string, string> = {};
+          const { importIsFile } = getImportFiles(token.info.trim(), (importPath, filePath) => {
             src = filePath;
-            sourceMap[filePath] = readFile(path.resolve('.', componentPath, filePath));
-            componentName = tempCodeName(componentPath, filePath);
+            sourceMap[filePath] = readFile(importPath);
+            previewFilePaths.push(importPath);
+          }, options);
+
+          if (importIsFile) {
+            componentName = tempCodeName(componentPath, src);
           }
           else {
-            // multiple files
-            importIsFile = false;
-            const dirPath = path.resolve('.', componentPath, src);
-            // only same name dir
-            const files = fs.readdirSync(dirPath);
-            for (const item of files) {
-              const filePath = path.join(dirPath, item);
-              if (isFile(filePath)) {
-                // default use 'defaultMutipleDemoFile' as render file
-                if (path.basename(filePath) === defaultMutipleDemoFile) {
-                  componentName = tempCodeName(componentPath, filePath);
-                }
-                sourceMap[item] = readFile(filePath);
+            for (const importPath of previewFilePaths) {
+              if (path.basename(importPath) === defaultMutipleDemoFile) {
+                componentName = tempCodeName(componentPath, importPath);
+                break;
               }
             }
           }
@@ -136,7 +163,7 @@ async function createDemoContainer(md: MarkdownIt, options?: DemoContainerOption
               ? `<template #component>
               <${componentName} />
             </template>`
-              : ''
+              : null
           }`;
         }
         else {

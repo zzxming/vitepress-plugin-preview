@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: [resolve(__dirname, './src/plugin.ts'), resolve(__dirname, './src/component.ts')],
-      formats: ['es', 'cjs'],
+      formats: ['es'],
     },
     rollupOptions: {
       external: ['vue', 'node:fs', 'node:path'],
