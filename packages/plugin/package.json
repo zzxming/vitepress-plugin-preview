@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "author": "zzxming",
   "exports": {
-    ".": "./dist/plugin.mjs",
+    ".": {
+      "types": "./dist/plugin.d.ts",
+      "import": "./dist/plugin.mjs"
+    },
     "./component": {
       "types": "./dist/component.d.ts",
       "import": "./dist/component.mjs"
