@@ -3,14 +3,9 @@ import { computed, ref } from 'vue';
 import { defaultMutipleDemoFile } from '../utils';
 import Code from './code.vue';
 import Example from './example.vue';
+import { demosProps } from './types';
 
-const props = defineProps<{
-  src: string;
-  rawSource: string;
-  source: string;
-  files: string;
-  isFile: boolean;
-}>();
+const props = defineProps(demosProps);
 
 let originDefaultDemoFileIndex = -1;
 const sortDefaultDemoFile = (sortArr: any[]) => {
@@ -52,7 +47,11 @@ const currentPath = computed(() => `${props.src}${!props.isFile ? `/${filesPath.
           :raw-source="rawSourceCode"
           :path="currentPath"
           :files="filesPath"
-        />
+        >
+          <template #icons>
+            <slot name="icons" />
+          </template>
+        </Code>
       </div>
     </ClientOnly>
   </div>

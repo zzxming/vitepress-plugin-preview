@@ -3,17 +3,10 @@ import { Icon } from '@iconify/vue';
 import { computed, ref } from 'vue';
 import { useDocBem } from '../composables';
 import CollapseTransition from './collapse-transition.vue';
+import { codeEmits, codeProps } from './types';
 
-const props = defineProps<{
-  modelValue: number;
-  source: string;
-  rawSource: string;
-  path: string;
-  files: string[];
-}>();
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: number): void;
-}>();
+const props = defineProps(codeProps);
+const emit = defineEmits(codeEmits);
 
 const [, bem] = useDocBem('example');
 
@@ -41,6 +34,7 @@ const toggleExpand = () => {
 <template>
   <div :class="bem.be('code')">
     <div :class="bem.be('actions')">
+      <slot name="icons" />
       <i
         :class="[bem.be('icon'), bem.be('actions-btn')]"
         title="复制代码"

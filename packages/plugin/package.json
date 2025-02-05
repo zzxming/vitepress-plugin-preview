@@ -4,7 +4,10 @@
   "author": "zzxming",
   "exports": {
     ".": "./dist/plugin.mjs",
-    "./component": "./dist/component.mjs",
+    "./component": {
+      "types": "./dist/component.d.ts",
+      "import": "./dist/component.mjs"
+    },
     "./index.css": "./dist/style.css"
   },
   "main": "dist/plugin.mjs",

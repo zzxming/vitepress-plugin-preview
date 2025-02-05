@@ -17,7 +17,10 @@ export default defineConfig({
     sidebar: [
       {
         text: 'Guide',
-        items: [{ text: 'Getting Start', link: '/guide/getting-start' }],
+        items: [
+          { text: 'Getting Start', link: '/guide/getting-start' },
+          { text: 'Options', link: '/guide/plugin-options' },
+        ],
       },
     ],
 

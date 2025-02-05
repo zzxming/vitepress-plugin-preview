@@ -12,6 +12,7 @@ export interface DemoContainerOptions {
   componentPath: string;
   prefix: string;
   shiki: ShikiOptions;
+  demoComponentPath?: string;
 }
 export interface ShikiOptions extends LoadShikiOptions {
   codeToHtmlOptions: Parameters<typeof highlight>[2];
@@ -34,11 +35,13 @@ function resolveOptions(options?: Partial<DemoContainerOptions>): DemoContainerO
     componentPath = 'demos',
     prefix = 'demo',
     shiki,
+    ...ops
   } = options || {};
   return {
     componentPath,
     prefix,
     shiki: resolveShikiOptions(shiki),
+    ...ops,
   };
 }
 function tempCodeName(componentsPath: string, filePath: string) {
@@ -85,6 +88,7 @@ function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
   const {
     componentPath,
     prefix,
+    demoComponentPath,
   } = resolveOptions(options);
   const containerName = `container_${prefix}_open`;
   const defaultContainer = md.renderer.rules[containerName]!;
@@ -104,8 +108,13 @@ function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
       const importPath = `/${normalizePath(filePath)}`;
       injectImport(mdFile, importPath, importName);
     }
-    injectImport(mdFile, 'vitepress-plugin-preview/component', '{ VitepressDemoPreview }');
-    injectImport(mdFile, 'vitepress-plugin-preview/index.css');
+    if (!demoComponentPath) {
+      injectImport(mdFile, 'vitepress-plugin-preview/component', '{ VitepressDemoPreview }');
+      injectImport(mdFile, 'vitepress-plugin-preview/index.css');
+    }
+    else {
+      injectImport(mdFile, demoComponentPath, '{ default as VitepressDemoPreview }');
+    }
     previewFilePaths.splice(0, previewFilePaths.length);
 
     return result;
