@@ -12,10 +12,12 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@prettier/plugin-xml": "^3.4.2",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0",
-    "@zzxming/eslint-config": "^0.3.4",
+    "@zzxming/eslint-config": "^0.5.5",
     "eslint-plugin-vue": "^9.31.0",
+    "eslint-processor-vue-blocks": "^2.0.0",
     "typescript": "^5.6.3",
     "vue-eslint-parser": "^9.4.3"
   }
