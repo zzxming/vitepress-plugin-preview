@@ -51,19 +51,22 @@ function tempCodeName(componentsPath: string, filePath: string) {
   return `TempCode${toPascalCase(pascalName)}`;
 }
 
-function getImportFiles(info: string, getFile: (importPath: string, inputPath: string) => void, options?: DemoContainerOptions) {
+function getDemoPrefixParams(info: string, prefix: string) {
+  const prefixMatchReg = new RegExp(`^${prefix}\s*(.*)$`);
+  const matched = info.trim().match(prefixMatchReg);
+  return matched?.[1].trim().split(/\s+/) || [];
+}
+function getImportFiles(info: string, getFile: (importPath: string, inputPath: string, options: { params: string[] }) => void, options?: DemoContainerOptions) {
   const {
     componentPath,
     prefix,
   } = resolveOptions(options);
-  const prefixMatchReg = new RegExp(`^${prefix}\s*(.*)$`);
-  const matched = info.trim().match(prefixMatchReg);
-  const params = matched?.[1].trim().split(/\s+/) || [];
+  const params = getDemoPrefixParams(info, prefix);
   let importIsFile = true;
   const filePath = params[0];
   if (isFile(path.resolve('.', componentPath, filePath))) {
     const importPath = path.resolve('.', componentPath, filePath);
-    getFile(importPath, filePath);
+    getFile(importPath, filePath, { params });
   }
   else {
     // multiple files
@@ -74,7 +77,7 @@ function getImportFiles(info: string, getFile: (importPath: string, inputPath: s
     for (const item of files) {
       const importPath = path.join(dirPath, item);
       if (isFile(importPath)) {
-        getFile(importPath, item);
+        getFile(importPath, item, { params });
       }
     }
   }
@@ -83,7 +86,7 @@ function getImportFiles(info: string, getFile: (importPath: string, inputPath: s
   };
 }
 
-const previewFilePaths: string[] = [];
+const previewFilePaths: Record<string, string[]> = {};
 function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
   const {
     componentPath,
@@ -101,13 +104,28 @@ function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
     self: Renderer,
   ) => {
     const result = defaultContainer(tokens, idx, options, mdFile, self);
+    const token = tokens[idx];
+    const attributes = (token.attrs || []).reduce((acc, pre) => {
+      const [name, value] = pre;
+      if (value.trim() === '' || value) {
+        acc[name] = true;
+      }
+      return acc;
+    }, {} as Record<string, boolean>);
+    const params = getDemoPrefixParams(token.info.trim(), prefix);
+    const importPath = params[0];
 
     // previewFilePaths closure
-    for (const filePath of previewFilePaths) {
+    for (const filePath of previewFilePaths[importPath]) {
       const importName = tempCodeName(componentPath, filePath);
       const importPath = `/${normalizePath(filePath)}`;
-      injectImport(mdFile, importPath, importName);
+
+      if (attributes.async) {
+        injectImport(mdFile, 'vue', '{ defineAsyncComponent }');
+      }
+      injectImport(mdFile, importPath, importName, attributes);
     }
+
     if (!demoComponentPath) {
       injectImport(mdFile, 'vitepress-plugin-preview/component', '{ VitepressDemoPreview }');
       injectImport(mdFile, 'vitepress-plugin-preview/index.css');
@@ -115,7 +133,7 @@ function useDemoImport(md: MarkdownIt, options?: DemoContainerOptions) {
     else {
       injectImport(mdFile, demoComponentPath, '{ default as VitepressDemoPreview }');
     }
-    previewFilePaths.splice(0, previewFilePaths.length);
+    delete previewFilePaths[importPath];
 
     return result;
   };
@@ -143,21 +161,27 @@ async function createDemoContainer(md: MarkdownIt, options?: DemoContainerOption
           let src = '';
           let componentName = '';
           const sourceMap: Record<string, string> = {};
-          const { importIsFile } = getImportFiles(token.info.trim(), (importPath, filePath) => {
+          const { importIsFile } = getImportFiles(token.info.trim(), (importPath, filePath, { params }) => {
             src = filePath;
             sourceMap[filePath] = readFile(importPath);
-            previewFilePaths.push(importPath);
+            if (!previewFilePaths[params[0]]) previewFilePaths[params[0]] = [];
+            previewFilePaths[params[0]].push(importPath);
           }, options);
 
           if (importIsFile) {
             componentName = tempCodeName(componentPath, src);
           }
           else {
-            for (const importPath of previewFilePaths) {
-              if (path.basename(importPath) === defaultMutipleDemoFile) {
-                componentName = tempCodeName(componentPath, importPath);
-                break;
+            for (const importPaths of Object.values(previewFilePaths)) {
+              let finded = false;
+              for (const importPath of importPaths) {
+                if (path.basename(importPath) === defaultMutipleDemoFile) {
+                  componentName = tempCodeName(componentPath, importPath);
+                  finded = true;
+                  break;
+                }
               }
+              if (finded) break;
             }
           }
 

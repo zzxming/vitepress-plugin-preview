@@ -20,6 +20,7 @@ export default defineConfig({
         items: [
           { text: 'Getting Start', link: '/guide/getting-start' },
           { text: 'Options', link: '/guide/plugin-options' },
+          { text: 'Async Component', link: '/guide/async-component' },
         ],
       },
     ],

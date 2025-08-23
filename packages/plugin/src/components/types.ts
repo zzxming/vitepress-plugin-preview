@@ -40,7 +40,7 @@ export const codeProps = {
     required: true,
   },
   files: {
-    type: Array,
+    type: Array as () => string[],
     required: true,
   },
 } as const;

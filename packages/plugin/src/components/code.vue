@@ -16,7 +16,7 @@ const exampleCodeText = computed(() => (isExpand.value ? '隐藏源代码' : '�
 const code = computed(() => decodeURIComponent(props.source));
 const rawCode = computed(() => decodeURIComponent(props.rawSource));
 
-const copyCode = () => {
+function copyCode() {
   const ta = document.createElement('textarea');
   ta.value = rawCode.value;
   ta.style.position = 'absolute';
@@ -25,10 +25,10 @@ const copyCode = () => {
   ta.select();
   document.execCommand('copy');
   ta.remove();
-};
-const toggleExpand = () => {
+}
+function toggleExpand() {
   isExpand.value = !isExpand.value;
-};
+}
 </script>
 
 <template>

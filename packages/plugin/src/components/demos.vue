@@ -8,13 +8,13 @@ import { demosProps } from './types';
 const props = defineProps(demosProps);
 
 let originDefaultDemoFileIndex = -1;
-const sortDefaultDemoFile = (sortArr: any[]) => {
+function sortDefaultDemoFile(sortArr: any[]) {
   const arr = [...sortArr];
   if (originDefaultDemoFileIndex !== -1) {
     arr.splice(0, 0, arr.splice(originDefaultDemoFileIndex, 1)[0]);
   }
   return arr;
-};
+}
 const filesPath = computed(() => {
   const files = props.files.split(',');
   originDefaultDemoFileIndex = files.indexOf(defaultMutipleDemoFile);

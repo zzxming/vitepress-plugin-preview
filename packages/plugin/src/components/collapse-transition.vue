@@ -6,13 +6,13 @@ defineOptions({ name: 'CdxCollapseTransition' });
 const [, bem] = useDocBem('collapse-transition');
 
 const elStyle: Partial<CSSStyleDeclaration> = {};
-const resetStyle = (el: HTMLElement) => {
+function resetStyle(el: HTMLElement) {
   Object.assign(el.style, {
     ...elStyle,
     maxHeight: null,
     boxSizing: null,
   });
-};
+}
 const events = {
   beforeEnter(el: HTMLElement) {
     elStyle.paddingTop = el.style.paddingTop;

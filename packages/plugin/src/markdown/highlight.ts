@@ -8,15 +8,15 @@ export interface LoadShikiOptions {
   themes: Parameters<typeof createHighlighter>[0]['themes'];
   langs: Parameters<typeof createHighlighter>[0]['langs'];
 }
-export const loadShiki = (options: LoadShikiOptions) => {
+export function loadShiki(options: LoadShikiOptions) {
   return createHighlighter({
     themes: [defaultTheme, ...options.themes],
     langs: options.langs,
   })
     .then(h => highlighter = h);
-};
+}
 
-export const highlight = (str: string, lang: string, options?: Partial<Omit<Parameters<typeof codeToHtml>[1], 'lang'>>) => {
+export function highlight(str: string, lang: string, options?: Partial<Omit<Parameters<typeof codeToHtml>[1], 'lang'>>) {
   if (!lang) {
     return str;
   }
@@ -25,4 +25,4 @@ export const highlight = (str: string, lang: string, options?: Partial<Omit<Para
     ...options,
     lang: lang.toLowerCase(),
   });
-};
+}
