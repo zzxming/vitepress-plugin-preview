@@ -2,6 +2,11 @@
   "name": "vitepress-plugin-preview",
   "version": "0.1.1",
   "author": "zzxming",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zzxming/vitepress-plugin-preview"
+  },
   "exports": {
     ".": {
       "types": "./dist/plugin.d.ts",

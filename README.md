@@ -2,5 +2,6 @@
 
 [docs](https://zzxming.github.io/vitepress-plugin-preview/guide/getting-start.html)
 
-- [x] mutiple files preview in one component
-- [x] shiki to highlight code
+- [x] Mutiple files preview in one component
+- [x] `Shiki` to highlight code
+- [x] Support async loading of non SSR libraries
